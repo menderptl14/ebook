@@ -1,7 +1,11 @@
 import { config } from "./config/config";
+import connectDB from "./config/db";
 import app from "./src/app"
 
-const startServer = () => {
+const startServer = async () => {
+
+    await connectDB()
+
     const PORT = config.port || 3000
 
     app.listen(PORT , ()=> {
