@@ -59,7 +59,37 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const loginPage = async(req: Request, res: Response, next: NextFunction) => {
+    
+  const {email,password} = req.body
 
-export {createUser}
+  if (!email || !password) {
+    const error = createHttpError(400,"Fields are required")
+    return next(error)
+  }
+
+  const user = await userModel.findOne({email})
+  if (!user) {
+    return next(createHttpError(400,"User not exits"))
+  }
+
+  const isMatch = await bcrypt.compare(password,user.password)
+
+  if (!isMatch) {
+    return next(createHttpError(400,"User not exits"))
+  }
+
+  // todo: handle errors
+  // Create accesstoken
+  const token = sign({ sub: user._id }, config.jwtSecret as string, {
+    expiresIn: "7d",
+    algorithm: "HS256",
+  });
+
+  res.json({ accessToken: token });
+};
+
+
+export {createUser,loginPage}
 
 
